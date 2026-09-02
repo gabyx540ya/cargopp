@@ -1,0 +1,124 @@
+#!/bin/bash
+
+# cpp install
+
+install_cargopp(){
+  #it work on linux
+
+  echo "Installation of cargopp In the system"
+  if [ "EUID" -ne 0 ]; then
+    echo "Error: you must execute 'sudo ./cargopp to install cargopp"
+    exit 1
+  fi
+  #copy the file to global path 
+
+  cp "$0" /usr/local/bin/cargopp
+  #make cargopp executable 
+
+  chmod +x /usr/local/bin/cargopp
+
+  echo "cargopp installed with success"
+  exit 0
+
+}
+
+if [ ! "$#" -gt 2 ]; then
+  echo "Usage: cpp <command> <projet name>"
+  exit 1
+fi
+
+#cpp build
+
+build_cargopp() {
+  cmake -B build
+  cmake --build build
+  echo "if you have src/bin files to compile"
+  echo "please notice them in CMakeLists.txt in doing for example: "
+  echo "add_executable(prog src/bin/prog.cpp)"
+}
+
+#cpp new 
+
+new_cargopp(name){
+  if [ -d "$name" ]; then
+    echo "Erreur : le dossier '$name' existe déjà."
+    exit 1
+  fi
+
+  mkdir -p "$name/src"
+  mkdir -p "$name/build"
+
+  cat >"$PROJECT/src/main.cpp" <<EOF
+  #include <iostream>
+
+  int main()
+  {
+      std::cout << "Hello, C++!" << std::endl;
+
+      return 0;
+  }
+  EOF
+
+  cat >"$PROJECT/CMakeLists.txt" <<EOF
+  cmake_minimum_required(VERSION 3.16)
+
+  project($PROJECT)
+
+  set(CMAKE_CXX_STANDARD 20)
+  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+  add_executable($PROJECT
+      src/main.cpp
+  )
+
+  target_compile_options($PROJECT PRIVATE
+    -Wall
+    -WExtra
+    -Wpedantic
+  )
+  EOF
+  echo "Projet C++ '$PROJECT' créé !"
+  echo "Pour compiler :"
+  echo "  cd $PROJECT"
+  echo "cpp build"
+  echo "To run code:"
+  echo "cpp run script name
+}
+# cpp run script
+#
+run_cpp(name){
+  if [ ! -d "$name" ]; then
+    echo "cpp run: the file $name does'nt exist"
+  else; then
+    build_cpp()
+    ./build/"$name"
+  fi 
+}
+
+## argument initialization
+
+COMMAND="$1"
+PROJECT="$2"
+## management of arguments 
+
+if [ "$COMMAND" == "new" ]; then
+  new_cargopp("$PROJECT")
+else if [ "$COMMAND" == "build" ]; then
+  build_cargopp()
+else if [ "$COMMAND" == "run"]; then
+  if [ "$#" -ne 3 ]; then
+    echo "Error::cpp : can't run without argument"
+    echo "use: cpp run <file name>"
+  else; then
+    FILENAME="$3"
+    run_cargopp("$FILENAME")
+  fi 
+else if [ "$COMMAND" == "install" ]; then
+  install_cargopp()
+else; then
+  echo "Error: command {${COMMAND}} non recognized"
+  echo "Usage: cpp <command> <projet name>"
+  exit 2
+fi
+
+
