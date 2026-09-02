@@ -2,6 +2,13 @@
 
 A lightweight package manager and build tool template for C++ projects, heavily inspired by Rust's Cargo and powered by CMake.
 
+The goal is to simplify common C++ workflows such as:
+* Creating new C++ projects
+* Configuring projects with CMake
+* Building projects
+* Running executables
+* Managing common development workflows
+
 ## Features
 - **Easy Installation**: One command to install it globally.
 - **Fast Project Creation**: Generate a fully configured C++20 project boilerplate with a clean `CMakeLists.txt` and `src/main.cpp`.
