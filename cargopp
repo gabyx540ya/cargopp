@@ -1,54 +1,56 @@
 #!/bin/bash
 
-# cpp install
+# cargopp install
 
-install_cargopp(){
+install_cargopp() {
   #it work on linux
 
-  echo "Installation of cargopp In the system"
-  if [ "EUID" -ne 0 ]; then
+  echo "Installation of cargopp In the system.."
+  if [ "$EUID" -ne 0 ]; then
     echo "Error: you must execute 'sudo ./cargopp to install cargopp"
     exit 1
   fi
-  #copy the file to global path 
+  #copy the file to global path
 
   cp "$0" /usr/local/bin/cargopp
-  #make cargopp executable 
+  #make cargopp executable
 
   chmod +x /usr/local/bin/cargopp
 
-  echo "cargopp installed with success"
+  echo "cargopp installed with success!"
   exit 0
 
 }
-
-if [ ! "$#" -gt 2 ]; then
-  echo "Usage: cpp <command> <projet name>"
-  exit 1
-fi
-
-#cpp build
+#cargopp build
 
 build_cargopp() {
+  echo "🔨 Building project..."
   cmake -B build
   cmake --build build
-  echo "if you have src/bin files to compile"
-  echo "please notice them in CMakeLists.txt in doing for example: "
+  echo "💡 Note: if you have src/bin files to compile,"
+  echo "please notice them in CMakeLists.txt by doing for example:"
   echo "add_executable(prog src/bin/prog.cpp)"
 }
+#cargopp new
 
-#cpp new 
+new_cargopp() {
+  local name="$1"
 
-new_cargopp(name){
+  if [ -z "$name" ]; then
+    echo "❌ Error: Please specify a project name. Usage: cargopp new <project_name>"
+    exit 1
+  fi
+
   if [ -d "$name" ]; then
-    echo "Erreur : le dossier '$name' existe déjà."
+    echo "Error : Directory '$name' already exists."
     exit 1
   fi
 
   mkdir -p "$name/src"
   mkdir -p "$name/build"
+  # main.cpp generation
 
-  cat >"$PROJECT/src/main.cpp" <<EOF
+  cat >"$name/src/main.cpp" <<EOF
   #include <iostream>
 
   int main()
@@ -57,68 +59,102 @@ new_cargopp(name){
 
       return 0;
   }
-  EOF
+EOF
 
-  cat >"$PROJECT/CMakeLists.txt" <<EOF
-  cmake_minimum_required(VERSION 3.16)
+  cat >"$name/CMakeLists.txt" <<EOF
+cmake_minimum_required(VERSION 3.16)
+project($name)
 
-  project($PROJECT)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-  set(CMAKE_CXX_STANDARD 20)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_executable($name
+    src/main.cpp
+)
 
-  add_executable($PROJECT
-      src/main.cpp
-  )
-
-  target_compile_options($PROJECT PRIVATE
+target_compile_options($name PRIVATE
     -Wall
-    -WExtra
+    -Wextra
     -Wpedantic
-  )
-  EOF
-  echo "Projet C++ '$PROJECT' créé !"
+)
+EOF
+  echo "Projet C++ '$name' créé !"
   echo "Pour compiler :"
-  echo "  cd $PROJECT"
-  echo "cpp build"
+  echo "  cd $name"
+  echo "cargopp build"
   echo "To run code:"
-  echo "cpp run script name
+  echo "cargopp run script name"
 }
-# cpp run script
-#
-run_cpp(name){
-  if [ ! -d "$name" ]; then
-    echo "cpp run: the file $name does'nt exist"
-  else; then
-    build_cpp()
-    ./build/"$name"
-  fi 
+# cargopp run script
+
+run_cargopp() {
+  local name=$1
+  if [ ! -d "build" ]; then
+    echo "❌ Error: Build directory does not exist. Please run 'cargopp build' first."
+    exit 1
+  fi
+  # start compilation
+
+  build_cargopp
+  if [ ! -f "build/$name" ]; then
+    echo "❌ Error: Build/$name does not exist. Please run 'cargopp build' first."
+    exit 1
+  fi
+
+  ./build/"$name"
+
 }
 
 ## argument initialization
 
-COMMAND="$1"
-PROJECT="$2"
-## management of arguments 
-
-if [ "$COMMAND" == "new" ]; then
-  new_cargopp("$PROJECT")
-else if [ "$COMMAND" == "build" ]; then
-  build_cargopp()
-else if [ "$COMMAND" == "run"]; then
-  if [ "$#" -ne 3 ]; then
-    echo "Error::cpp : can't run without argument"
-    echo "use: cpp run <file name>"
-  else; then
-    FILENAME="$3"
-    run_cargopp("$FILENAME")
-  fi 
-else if [ "$COMMAND" == "install" ]; then
-  install_cargopp()
-else; then
-  echo "Error: command {${COMMAND}} non recognized"
-  echo "Usage: cpp <command> <projet name>"
-  exit 2
+if [ "$#" -lt 1 ]; then
+  echo "Usage: cargopp <command> [argument]"
+  exit 1
 fi
 
+COMMAND="$1"
 
+case "$COMMAND" in
+
+new)
+  if [ "$#" -ne 2 ]; then
+    echo "Usage: cargopp new <project_name>"
+    exit 1
+  fi
+
+  PROJECT="$2"
+  new_cargopp "$PROJECT"
+  ;;
+
+build)
+  build_cargopp
+  ;;
+
+run)
+  if [ "$#" -ne 2 ]; then
+    echo "Error: cpp run requires a program name"
+    echo "Usage: cpp run <program_name>"
+    exit 1
+  fi
+
+  FILENAME="$2"
+  run_cargopp "$FILENAME"
+  ;;
+
+install)
+  install_cargopp
+  ;;
+
+*)
+  echo "Error: command '$COMMAND' not recognized."
+  echo "Usage: cpp <command> [argument]"
+  echo ""
+  echo "Commands:"
+  echo "  install              Install cargopp globally"
+  echo "  new <name>           Create a new C++ project"
+  echo "  build                Build the current project"
+  echo "  run <program>        Build and run a program"
+  exit 2
+  ;;
+
+esac
