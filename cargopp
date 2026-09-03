@@ -34,6 +34,7 @@ find_os_familly() {
 # cargopp check_dependencies
 
 check_dependencies_cargopp() {
+  echo "🔍 Checking dependencies..."
   local os=$(find_os_familly)
   local missing_deps=()
 
@@ -95,6 +96,9 @@ install_cargopp() {
     echo "Error: you must execute 'sudo ./cargopp to install cargopp"
     exit 1
   fi
+  # chech dependencies
+
+  check_dependencies_cargopp
   #copy the file to global path
 
   cp "$0" /usr/local/bin/cargopp
