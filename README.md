@@ -14,16 +14,42 @@ The goal is to simplify common C++ workflows such as:
 - **Fast Project Creation**: Generate a fully configured C++20 project boilerplate with a clean `CMakeLists.txt` and `src/main.cpp`.
 - **Seamless Build & Run**: Automates CMake generation, compilation, and execution without writing multi-line commands.
 
+
+## Prerequisites
+
+Before installing `cargopp`, ensure your system has the following tools installed:
+
+- **OS**: debian/ubuntu, redhat, arch, suse or macOS
+- **Build System**: `cmake` (>= 3.16)
+- **Compiler**: A C++20 compatible compiler (`g++` >= 10 or `clang`)
+- **Downloader**: `curl` (for one-line installation)
+
+
 ## Installation
+
+You can install `cargopp` using one of the two options below:
 
 ### Option 1: One-Line Ultra Fast Install (Recommended)
 Open your terminal and paste this single command to download, install globally, and clean up automatically:
+
 ```bash
 curl -fsSL https://githubusercontent.com -o cargopp && chmod +x cargopp && sudo ./cargopp install && rm cargopp
 ```
 
+*💡 Note: If `curl` is not installed on your Ubuntu/Debian system, you can install it by running:*
+```bash
+sudo apt update && sudo apt install curl -y
+```
+
 ### Option 2: Standard Git Clone
-If you prefer to keep the source code locally, clone the repository and run the installer manually:
+If you prefer to keep the source code locally, clone the repository and run the installer manually.
+
+*💡 Note: If `git` is not installed on your Ubuntu/Debian system, install it first:*
+```bash
+sudo apt update && sudo apt install git -y
+```
+
+Then, clone and install `cargopp`:
 ```bash
 git clone https://github.com
 cd cargopp

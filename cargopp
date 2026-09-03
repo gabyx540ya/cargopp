@@ -1,5 +1,90 @@
 #!/bin/bash
 
+# ---- COULEURS ANSI ----
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+find_os_familly() {
+
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    OS_FAMILY="macos"
+
+  elif command -v apt >/dev/null 2>&1; then
+    OS_FAMILY="debian"
+
+  elif command -v dnf >/dev/null 2>&1; then
+    OS_FAMILY="redhat"
+
+  elif command -v pacman >/dev/null 2>&1; then
+    OS_FAMILY="arch"
+
+  elif command -v zypper >/dev/null 2>&1; then
+    OS_FAMILY="suse"
+
+  else
+    OS_FAMILY="unknown"
+  fi
+
+  echo "$OS_FAMILY"
+}
+
+# cargopp check_dependencies
+
+check_dependencies_cargopp() {
+  local os=$(find_os_familly)
+  local missing_deps=()
+
+  if ! command -v cmake &>/dev/null; then missing_deps+=("cmake"); fi
+  if ! command -v g++ &>/dev/null && ! command -v clang++ &>/dev/null; then missing_deps+=("g++"); fi
+
+  # stop if everythink is good
+
+  if [ ${#missing_deps[@]} -eq 0 ]; then
+    return 0
+  fi
+  echo -e "${YELLOW}⚠️ Missing required tools: ${missing_deps[*]}${NC}"
+
+  #
+  local install_cmd=""
+  case "$os" in
+  *debian*)
+    install_cmd="sudo apt update && sudo apt install -y cmake build-essential"
+    ;;
+  *arch*)
+    install_cmd="sudo pacman -Sy --noconfirm cmake base-devel"
+    ;;
+  *suse*)
+    install_cmd="sudo zypper install -y cmake gcc-c++ make"
+    ;;
+  *macos*)
+    install_cmd="brew install cmake"
+    ;;
+  *)
+    echo -e "${RED}❌ Unsupported OS template. Please install cmake and g++ manually.${NC}"
+    exit 1
+    ;;
+  esac
+  echo -e "${BLUE}👉 cargopp can install them for you.${NC}"
+  read -p "Do you want to run [ $install_cmd ] ? (Y/n): " response
+  response=${response,,} # Convert to lowercase
+
+  if [[ "$response" =~ ^(yes|y|"") ]]; then
+    echo -e "${BLUE}⚙️ Installing dependencies...${NC}"
+    eval "$install_cmd"
+    if [ $? -ne 0 ]; then
+      echo -e "${RED}❌ Error during dependencies installation.${NC}"
+      exit 1
+    fi
+    echo -e "${GREEN}✅ Dependencies installed successfully!${NC}"
+  else
+    echo -e "${RED}❌ Installation aborted. cargopp requires cmake and g++ to work.${NC}"
+    exit 1
+  fi
+}
+
 # cargopp install
 
 install_cargopp() {
@@ -78,22 +163,24 @@ target_compile_options($name PRIVATE
     -Wpedantic
 )
 EOF
-  echo "Projet C++ '$name' créé !"
-  echo "Pour compiler :"
-  echo "  cd $name"
-  echo "cargopp build"
-  echo "To run code:"
-  echo "cargopp run script name"
+
+  echo -e "${GREEN}Projet C++ '$name' created !${NC}"
+  echo -e "${RED}💡 tips : "
+  echo -e "  ${RED}To build project"
+  echo -e "    cd $name"
+  echo -e "    cargopp build"
+  echo -e "  ${RED}To run project main : "
+  echo -e "    cd $name"
+  echo -e "    cargopp run $name"
+  echo -e "  ${RED}To run other bin script : "
+  echo -e "    cd $name"
+  echo -e "    cargopp run <script name>"
+
 }
 # cargopp run script
 
 run_cargopp() {
-  local name=$1
-  if [ ! -d "build" ]; then
-    echo "❌ Error: Build directory does not exist. Please run 'cargopp build' first."
-    exit 1
-  fi
-  # start compilation
+  local name=$1 # start compilation
 
   build_cargopp
   if [ ! -f "build/$name" ]; then
@@ -132,8 +219,8 @@ build)
 
 run)
   if [ "$#" -ne 2 ]; then
-    echo "Error: cpp run requires a program name"
-    echo "Usage: cpp run <program_name>"
+    echo "Error: cargopp run requires a program name"
+    echo "Usage: cargopp run <program_name>"
     exit 1
   fi
 
@@ -147,7 +234,7 @@ install)
 
 *)
   echo "Error: command '$COMMAND' not recognized."
-  echo "Usage: cpp <command> [argument]"
+  echo "Usage: cargopp <command> [argument]"
   echo ""
   echo "Commands:"
   echo "  install              Install cargopp globally"
