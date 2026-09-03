@@ -33,7 +33,7 @@ You can install `cargopp` using one of the two options below:
 Open your terminal and paste this single command to download, install globally, and clean up automatically:
 
 ```bash
-curl -fsSL https://githubusercontent.com -o cargopp && chmod +x cargopp && sudo ./cargopp install && rm cargopp
+curl -fsSL https://github.com/gabyx540ya/cargopp.git -o cargopp && chmod +x cargopp && sudo ./cargopp install && rm cargopp
 ```
 
 *💡 Note: If `curl` is not installed on your Ubuntu/Debian system, you can install it by running:*
@@ -51,7 +51,7 @@ sudo apt update && sudo apt install git -y
 
 Then, clone and install `cargopp`:
 ```bash
-git clone https://github.com
+git clone https://github.com/gabyx540ya/cargopp.git
 cd cargopp
 sudo ./cargopp install
 ```
