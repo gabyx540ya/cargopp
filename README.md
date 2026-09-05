@@ -1,9 +1,9 @@
 # cargopp
 
-A lightweight package manager and build tool template for C++ projects, heavily inspired by Rust's Cargo and powered by CMake.
+A lightweight package manager and build tool template for C++ & C projects, inspired by Rust's Cargo and powered by CMake.
 
-The goal is to simplify common C++ workflows such as:
-* Creating new C++ projects
+The goal is to simplify common C++&C workflows such as:
+* Creating new C++&C projects
 * Configuring projects with CMake
 * Building projects
 * Running executables
@@ -11,7 +11,7 @@ The goal is to simplify common C++ workflows such as:
 
 ## Features
 - **Easy Installation**: One command to install it globally.
-- **Fast Project Creation**: Generate a fully configured C++20 project boilerplate with a clean `CMakeLists.txt` and `src/main.cpp`.
+- **Fast Project Creation**: Generate a fully configured C++20 project boilerplate.
 - **Seamless Build & Run**: Automates CMake generation, compilation, and execution without writing multi-line commands.
 
 
@@ -19,7 +19,7 @@ The goal is to simplify common C++ workflows such as:
 
 Before installing `cargopp`, ensure your system has the following tools installed:
 
-- **OS**: linux(debian/ubuntu, redhat, arch, suse) or macOS
+- **OS**: linux(debian/ubuntu, redhat)
 - **Build System**: `cmake` (>= 3.16)
 - **Compiler**: A C++20 compatible compiler (`g++` >= 10 or `clang`)
 - **Downloader**: `curl` (for one-line installation)
@@ -33,7 +33,7 @@ You can install `cargopp` using one of the two options below:
 Open your terminal and paste this single command to download, install globally, and clean up automatically:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/cargopp -o cargopp && chmod +x cargopp && sudo ./cargopp install && rm cargopp
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/ubuntu_debian/install -o install && chmod +x install && sudo ./install
 ```
 
 *💡 Note: If `curl` is not installed on your Ubuntu/Debian system, you can install it by running:*
