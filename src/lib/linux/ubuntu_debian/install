@@ -140,7 +140,7 @@ manage_installation_deb_redhat(){
   last_position=$(pwd)
   cd $HOME
   mkdir .cargopp 
-  [[ $? -ne 0 ]];then rm -r .cargopp && mkdir .cargopp
+  [[ $? -ne 0 ]]; then rm -r .cargopp && mkdir .cargopp
   mkdir .cargopp/bin 
   # installing git repositories
   echo "⚙️ installing git repositories of cargopp.."
