@@ -109,7 +109,7 @@ find_os_familly() {
 search_cargopp_and_kill(){
   victim=$(which cargopp)
   me=$(pwd)
-  if [ ! -z $victim ];then
+  if[ ! -z $victim ];then
     if [ $victim != $me ]; then
       echo -e "${RED} a software at the name cargopp is detected ${NC}"
       echo -e "${RED} cargopp want to remove it before installation"
