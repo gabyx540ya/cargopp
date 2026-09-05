@@ -1,0 +1,70 @@
+#! usr/bin/env bash
+
+# ---- ANSI COLORS ----
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+#new cargopp --c
+
+new_c() {
+  local name="$1"
+
+  if [ -z "$name" ]; then
+    echo "❌ Error: Please specify a project name. Usage: cargopp new <project_name> --c"
+    exit 1
+  fi
+
+  if [ -d "$name" ]; then
+    echo "Error : Directory '$name' already exists."
+    exit 1
+  fi
+
+  mkdir -p "$name/src"
+  mkdir -p "$name/build"
+  # main.c generation
+
+  cat >"$name/src/main.c" <<EOF
+  #include <stdio.h>
+
+  int main(void)
+  {
+      printf("Hello, C!\n ");
+
+      return 0;
+  }
+EOF
+
+  cat >"$name/CMakeLists.txt" <<EOF
+cmake_minimum_required(VERSION 3.16)
+project($name LANGUAGES C)
+
+set(CMAKE_C_STANDARD 20)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+add_executable($name
+    src/main.c
+)
+
+target_compile_options($name PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+)
+EOF
+
+  echo -e "${GREEN} C project '$name' created !${NC}"
+  echo -e "${RED}💡 tips : "
+  echo -e "  ${RED}To build project"
+  echo -e "    cd $name"
+  echo -e "    cargopp build"
+  echo -e "  ${RED} To run project main : "
+  echo -e "    cd $name"
+  echo -e "    cargopp run $name"
+  echo -e "  ${RED}To run other bin script : "
+  echo -e "    cd $name"
+  echo -e "    cargopp run <script name>"
+
+}

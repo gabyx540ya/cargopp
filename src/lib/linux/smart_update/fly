@@ -1,0 +1,100 @@
+#! /usr/bin/env bash 
+
+is_new(){
+  version1=$1 # github_version
+  version2=$2 # this_version 
+  if [ -z "$version1" || -z "$version2" ];then
+    exit 1
+  fi
+  IFS='.' read -r major1 minor1 patch1 <<< $version1
+  IFS='.' read -r major2 minor2 patch2 <<< $version2
+  if [ $major1 -eq $major2 ];then
+    if [ $minor1 -eq $minor2 ]; then
+      if [ $patch1 -eq $patch2 ]; then
+        echo false
+      else
+        if [ $patch1 -gt $patch2 ]; then
+          echo true
+        else
+          echo false
+      fi
+    else
+      if [ $minor1 -gt $minor2 ]; then
+        echo true
+      else
+        echo false
+      fi
+    fi
+  else
+    if [ $major1 -gt $major2 ]; then
+      echo true
+    else 
+      echo false
+  fi
+  exit 0
+}
+necessary_to_look_at_github(){
+  local home=$1
+  local user_home=$2
+  if [ -z $home || -z $user_home ];then
+    exit 1
+  fi
+  cd $home
+  if [ ! -f .last_fly ]; then
+    touch .last_fly
+    echo true
+  else
+    last_fly=$(cat .last_fly)
+    actual_unix_time=$(date +%s)
+    in_hour=$((actual_unix_time / 3600))
+    # count difference of time between the last look at github and actual
+    difference=$((in_hour - last_fly))
+    if [ difference -gt 24 ]; then
+      echo true
+    else
+      echo false
+    fi
+  fi 
+  cd $user_home
+  exit 0 
+}
+has_new_version(){
+  local home=$1
+  local user_home=$2
+  if [ -z $home || -z $user_home ];then
+    exit 1
+  fi
+  github_version=$(curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/.cache/version)
+  cd $home
+  cd .. # go to linux
+  cd .. # go to lib
+  cd .. # go to bin
+  cd .. # go to cargopp
+  this_version=$(cat .cache/version)
+  is_new_v=$(is_new $github_version $this_version)
+  if [ $is_new_v ]; then
+    echo true
+  else 
+    echo false
+  fi
+  cd $user_home
+  exit 0
+}
+new_version_notifier(){
+  new_version=$(cat .version)
+  echo "----------------------"
+  echo "cargopp ${new_version}v is disponible!"
+  echo "use: 'cargopp update' to install the new version "
+  echo "----------------------"
+}
+pos=$(pwd)
+home=$(which cargopp)/lib/linux/smart_update
+look_at_github=$(necessary_to_look_at_github $home $pos)
+if [ look_at_github ]; then
+  new_version=$(has_new_version $home $pos)
+  if [ new_version ]; then
+    new_version_notifier
+  fi
+fi
+rm .version
+exit 0

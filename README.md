@@ -19,7 +19,7 @@ The goal is to simplify common C++ workflows such as:
 
 Before installing `cargopp`, ensure your system has the following tools installed:
 
-- **OS**: debian/ubuntu, redhat, arch, suse or macOS
+- **OS**: linux(debian/ubuntu, redhat, arch, suse) or macOS
 - **Build System**: `cmake` (>= 3.16)
 - **Compiler**: A C++20 compatible compiler (`g++` >= 10 or `clang`)
 - **Downloader**: `curl` (for one-line installation)

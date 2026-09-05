@@ -1,0 +1,28 @@
+#!/bin/bash
+
+
+find_os_familly() {
+
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    OS_FAMILY="macos"
+
+  elif command -v apt >/dev/null 2>&1; then
+    OS_FAMILY="debian"
+
+  elif command -v dnf >/dev/null 2>&1; then
+    OS_FAMILY="redhat"
+
+  elif command -v pacman >/dev/null 2>&1; then
+    OS_FAMILY="arch"
+
+  elif command -v zypper >/dev/null 2>&1; then
+    OS_FAMILY="suse"
+
+  else
+    OS_FAMILY="unknown"
+  fi
+
+  echo "$OS_FAMILY"
+}
+
+

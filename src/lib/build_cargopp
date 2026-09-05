@@ -1,0 +1,10 @@
+#! usr/bin/env bash 
+
+build_cargopp() {
+  echo "🔨 Building project..."
+  cmake -B build
+  cmake --build build
+  echo "💡 Note: if you have src/bin files to compile,"
+  echo "please notice them in CMakeLists.txt by doing for example:"
+  echo "add_executable(prog src/bin/prog.cpp)"
+}

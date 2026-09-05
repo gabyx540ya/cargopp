@@ -1,0 +1,86 @@
+#!/bin/bash
+
+# ---- COULEURS ANSI ----
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# external scripts
+ROOT=$(which cargopp)
+USERROOT=$(pwd)
+source "$ROOT"/lib/run
+source "$ROOT"/lib/build_cargopp
+source "$ROOT"/lib/new_cargopp
+source "$ROOT"/lib/linux/ubuntu_debian/install
+source "$ROOT"/lib/smart_update/fly
+cd $ROOT
+cd ..
+ROOT1=$(pwd) # cargopp_version position
+source "$ROOT1"/cargopp_version
+cd $USERROOT
+
+## argument initialization
+
+if [ "$#" -lt 1 ]; then
+  echo "Usage: cargopp <command> [argument]"
+  exit 1
+fi
+
+COMMAND="$1"
+
+case "$COMMAND" in
+
+new)
+  fly
+  if [ "$#" -ne 2 ]; then
+    echo "Usage: cargopp new <project_name>"
+    exit 1
+  fi
+
+  PROJECT="$2"
+  new_cargopp "$PROJECT"
+  ;;
+
+build)
+  fly
+  build_cargopp
+  ;;
+
+run)
+  fly
+  if [ "$#" -ne 2 ]; then
+    echo "Error: cargopp run requires a program name"
+    echo "Usage: cargopp run <program_name>"
+    exit 1
+  fi
+
+  FILENAME="$2"
+  run "$FILENAME"
+  ;;
+
+install)
+  install
+  ;;
+update)
+  install
+  ;;
+*version)
+  fly
+  cargopp_version
+  ;;
+*)
+  echo "Error: command '$COMMAND' not recognized."
+  echo "Usage: cargopp <command> [argument]"
+  echo ""
+  echo "Commands:"
+  echo "  --version            See local version"
+  echo "  install              Install cargopp globally"
+  echo "  new <name>           Create a new C++ project"
+  echo "  build                Build the current project"
+  echo "  run <program>        Build and run a program"
+  exit 2
+  ;;
+
+esac
