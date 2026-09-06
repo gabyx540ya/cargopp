@@ -1,0 +1,22 @@
+#! /usr/bin/env bash 
+
+victim=$(which cargopp)
+me=$(pwd)
+if [ ! -z $victim ];then
+  if [ $victim != $me ]; then
+    echo -e "${RED} a software at the name cargopp is detected ${NC}"
+    echo -e "${RED} cargopp want to remove it before installation"
+    echo -e "${BLUE} Do you allow cargopp remove it ?.${NC}"
+    read -p "Do you allow cargopp remove it ? (Y/n): " response
+    response=${response,,} # Convert to lowercase
+
+    if [[ "$response" =~ ^(yes|y|"") ]]; then
+      sudo rm -f $victim
+    else
+      echo -e "${RED}❌ Installation aborted. "
+      exit 1
+    fi
+  fi
+fi
+
+

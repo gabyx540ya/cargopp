@@ -13,9 +13,9 @@ USERROOT=$(pwd)
 source "$ROOT"/lib/run
 source "$ROOT"/lib/build_cargopp
 source "$ROOT"/lib/new_cargopp
-source "$ROOT"/lib/linux/ubuntu_debian/install
-source "$ROOT"/lib/smart_update/fly
-cd $ROOT
+source "$ROOT"/lib/setup/smart_update/update
+source "$ROOT"/lib/setup/smart_update/fly
+cd "$ROOT"
 cd ..
 ROOT1=$(pwd) # cargopp_version position
 source "$ROOT1"/cargopp_version
@@ -59,12 +59,8 @@ run)
   FILENAME="$2"
   run "$FILENAME"
   ;;
-
-install)
-  install
-  ;;
 update)
-  install
+  update
   ;;
 *version)
   fly

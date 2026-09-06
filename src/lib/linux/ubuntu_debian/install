@@ -7,7 +7,6 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-
 # cargopp check_dependencies
 
 check_dependencies_cargopp() {
@@ -16,15 +15,32 @@ check_dependencies_cargopp() {
   local missing_deps=()
   local curl_absent=false
   if ! command -v cmake &>/dev/null; then missing_deps+=("cmake"); fi
-  if ! command -v g++ &>/dev/null && ! command -v clang++ &>/dev/null; then missing_deps+=("g++"); fi
+  if ! command -v g++ &>/dev/null && ! command -v gcc &>/dev/null; then missing_deps+=("g++"); fi
   if ! command -v curl >/dev/null 2>&1; then curl_absent=true; fi
-  
+
   # stop if everythink is good
 
-  if [ ${#missing_deps[@]} -eq 0 && !curl_absent ]; then
+  if [ "${#missing_deps[@]}" -eq 0 ] && [ "$curl_absent" == false ]; then
     return 0
   else
-    if [ !${#missing_deps[@]} -eq 0 && !curl_absent ]; then
+    if [ "$curl_absent" == true ]; then
+      case "$os" in
+      *redhat*)
+        install_curl="sudo dnf install curl"
+        ;;
+      *debian*)
+        install_curl="sudo apt install curl"
+        ;;
+      *)
+        echo -e "${RED}❌ Unsupported OS template. You can install cmake and g++ manually.${NC}"
+        exit 1
+        ;;
+      esac
+    else
+      install_curl=""
+    fi
+
+    if [ ! "${#missing_deps[@]}" -eq 0 ]; then
       echo -e "${YELLOW}⚠️ Missing required tools: ${missing_deps[*]}${NC}"
       local install_cmd=""
       case "$os" in
@@ -32,36 +48,20 @@ check_dependencies_cargopp() {
         install_cmd="sudo apt update && sudo apt install -y cmake build-essential"
         ;;
       *redhat*)
-        install_cmd="sudo dnf update -y && sudo dnf group install -y "Development Tools" && sudo dnf install -y cmake"
+        install_cmd="sudo dnf update -y && sudo dnf group install -y 'Development Tools' && sudo dnf install -y cmake"
         ;;
       *)
-        echo -e "${RED}❌ Unsupported OS template. Please install cmake and g++ manually.${NC}"
+        echo -e "${RED}❌ Unsupported OS template. You can install cmake and g++ manually.${NC}"
         exit 1
         ;;
       esac
-    elif [ curl_absent && ${#missing_deps[@]} -eq 0 ]; then
-      case "$os" in 
-      *redhat*)
-        install_cmd="sudo dnf install curl"
-        ;;
-      *debian*)
-        install_cmd="sudo apt install curl"
-        ;;
-      esac
+      if [ ! -z "$install_curl" ]; then
+        install_cmd="$install_cmd && $install_curl"
+      fi
     else
-      case "$os" in 
-      *redhat*)
-        install_curl="sudo dnf install curl"
-        install_cmd="sudo dnf update -y && sudo dnf group install -y "Development Tools" && sudo dnf install -y cmake"
-        install_cmd="$install_cmd && $install_curl"
-        ;;
-      *debian*)
-        install_curl="sudo apt install curl"
-        install_cmd="sudo apt update && sudo apt install -y cmake build-essential"
-        install_cmd="$install_cmd && $install_curl"
-        ;;
-      esac
-    fi 
+      install_cmd="$install_curl"
+    fi
+
     echo -e "${BLUE}👉 cargopp can install them for you.${NC}"
     read -p "Do you want to run [ $install_cmd ] ? (Y/n): " response
     response=${response,,} # Convert to lowercase
@@ -80,8 +80,7 @@ check_dependencies_cargopp() {
     fi
   fi
 
-
-  }
+}
 
 find_os_familly() {
 
@@ -106,28 +105,26 @@ find_os_familly() {
 
   echo "$OS_FAMILY"
 }
-search_cargopp_and_kill(){
+search_cargopp_and_kill() {
   victim=$(which cargopp)
   me=$(pwd)
-  if [ ! -z $victim ];then
-    if [ $victim != $me ]; then
-      echo -e "${RED} a software at the name cargopp is detected ${NC}"
-      echo -e "${RED} cargopp want to remove it before installation"
-      echo -e "${BLUE} Do you allow cargopp remove it ?.${NC}"
-      read -p "Do you allow cargopp remove it ? (Y/n): " response
-      response=${response,,} # Convert to lowercase
+  if [ ! -z $victim ]; then
+    echo -e "${RED} a software at the name cargopp is detected ${NC}"
+    echo -e "${RED} cargopp want to remove it before installation"
+    echo -e "${BLUE} Do you allow cargopp remove it ?.${NC}"
+    read -p "Do you allow cargopp remove it ? (Y/n): " response
+    response=${response,,} # Convert to lowercase
 
-      if [[ "$response" =~ ^(yes|y|"") ]]; then
-        sudo rm -f $victim
-      else
-        echo -e "${RED}❌ Installation aborted. "
-        exit 1
-      fi
+    if [[ "$response" =~ ^(yes|y|"") ]]; then
+      sudo rm -f $victim
+    else
+      echo -e "${RED}❌ Installation aborted. "
+      exit 1
     fi
   fi
 }
 
-manage_installation_deb_redhat(){
+manage_installation_deb_redhat() {
   echo "Installation of cargopp In the system.."
   if [ "$EUID" -ne 0 ]; then
     echo "Error: you must execute 'sudo ./install to install cargopp"
@@ -138,47 +135,55 @@ manage_installation_deb_redhat(){
   check_dependencies_cargopp "$1"
   # create the repertorie .cargopp
   last_position=$(pwd)
-  cd $HOME
-  mkdir .cargopp 
-  if [[ $? -ne 0 ]]; then 
+  cd "$HOME"
+  mkdir .cargopp
+  if [[ $? -ne 0 ]]; then
     rm -r .cargopp && mkdir .cargopp
   fi
-  mkdir .cargopp/bin 
+  mkdir .cargopp/bin
   # installing git repositories
   echo "⚙️ installing git repositories of cargopp.."
   cd .cargopp/bin
   mkdir lib
-  mkdir lib/smart_update
+  mkdir lib/setup
+  mkdir lib/setup/smart_update
   cd lib
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_cargopp -o new_cargopp && chmod +x new_cargopp
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_c -o new_c && chmod +x new_c
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_cpp -o new_cpp && chmod +x new_cpp
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/build_cargopp -o build_cargopp && chmod +x build_cargopp
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/run -o run && chmod +x run
+  cd setup
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/install/check_dependencies -o check_dependencies && chmod +x check_dependencies
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/install/curl_bring -o curl_bring && chmod +x curl_bring
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/install/find_os -o find_os && chmod +x find_os
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/install/search_cargopp_and_kill -o search_cargopp_and_kill && chmod +x search_cargopp_and_kill
   cd smart_update
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/fly -o fly && chmod +x fly
-  cd ..
-  #install cargopp from git and make his folder global 
-  cd ..
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/install/smart_update/fly -o fly && chmod +x fly
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/install/smart_update/update -o update && chmod +x update
+
+  cd .. # go to setup
+  cd .. # go to lib
+  #install cargopp from git and make his folder global
+  cd .. # go to bin
   # search the cargopp and kill it
   search_cargopp_and_kill
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/cargopp -o cargopp && chmod +x cargopp
-  position=$(pwd)
-  echo 'export PATH="$PATH:$position"' >> ~/.bashrc
-  cd ..
+  #position=$(pwd)
+  #echo 'export PATH="$PATH:$position"' >>~/.bashrc
+  sudo ln -sfn "$HOME/.cargopp/bin/cargopp" /usr/local/bin/cargopp
+  cd .. # go to .cargopp
   #install version
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/cargopp_version -o cargopp_version && chmod +r cargopp_version
-  install_position=$(pwd)/lib/linux/ubuntu_debian/install
   cd $last_position
-  mv (basename "$0") $install_position
-  rm (basename "$0") > /dev/null 2>&1
+  rm -- "$(basename "$0")" >/dev/null 2>&1
   echo "cargopp installed with success!"
   exit 0
 }
 
 # cargopp install
 OS=$(find_os_familly)
-case "$os" in
+case "$OS" in
 *debian*)
   manage_installation_deb_redhat "$OS"
   ;;
@@ -190,7 +195,3 @@ case "$os" in
   exit 1
   ;;
 esac
-
-
-
-

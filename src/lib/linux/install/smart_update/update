@@ -16,7 +16,7 @@ check_dependencies_cargopp() {
   local missing_deps=()
   local curl_absent=false
   if ! command -v cmake &>/dev/null; then missing_deps+=("cmake"); fi
-  if ! command -v g++ &>/dev/null && ! command -v clang++ &>/dev/null; then missing_deps+=("g++"); fi
+  if ! command -v g++ &>/dev/null && ! command -v gcc &>/dev/null; then missing_deps+=("g++"); fi
   if ! command -v curl >/dev/null 2>&1; then curl_absent=true; fi
   
   # stop if everythink is good
@@ -80,7 +80,6 @@ check_dependencies_cargopp() {
     fi
   fi
 
-
   }
 
 find_os_familly() {
@@ -129,24 +128,18 @@ search_cargopp_and_kill(){
 
 manage_installation_deb_redhat(){
   echo "Installation of cargopp In the system.."
-  if [ "$EUID" -ne 0 ]; then
-    echo "Error: you must execute 'sudo ./install to install cargopp"
-    exit 1
-  fi
+  
   # chech dependencies
 
   check_dependencies_cargopp "$1"
   # create the repertorie .cargopp
   last_position=$(pwd)
-  cd $HOME
-  mkdir .cargopp 
-  [[ $? -ne 0 ]];then rm -r .cargopp && mkdir .cargopp
-  mkdir .cargopp/bin 
+  my_position=$(which cargopp)
+  cd "$my_position"
+  cd .. # go to .cargopp folder
   # installing git repositories
   echo "⚙️ installing git repositories of cargopp.."
   cd .cargopp/bin
-  mkdir lib
-  mkdir lib/smart_update
   cd lib
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_cargopp -o new_cargopp && chmod +x new_cargopp
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_c -o new_c && chmod +x new_c
@@ -166,7 +159,7 @@ manage_installation_deb_redhat(){
   cd ..
   #install version
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/cargopp_version -o cargopp_version && chmod +r cargopp_version
-  install_position=$(pwd)/lib/linux/ubuntu_debian/install
+  install_position="$(pwd)/lib/"
   cd $last_position
   mv (basename "$0") $install_position
   rm (basename "$0") > /dev/null 2>&1
@@ -188,6 +181,7 @@ case "$os" in
   exit 1
   ;;
 esac
+
 
 
 

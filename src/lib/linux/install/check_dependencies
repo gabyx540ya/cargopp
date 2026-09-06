@@ -1,0 +1,70 @@
+#! /usr/bin/env bash
+
+echo "🔍 Checking dependencies..."
+os="$1"
+missing_deps=()
+curl_absent=false
+if ! command -v cmake &>/dev/null; then missing_deps+=("cmake"); fi
+if ! command -v g++ &>/dev/null && ! command -v gcc &>/dev/null; then missing_deps+=("g++"); fi
+if ! command -v curl >/dev/null 2>&1; then curl_absent=true; fi
+
+# stop if everythink is good
+
+if [ ${#missing_deps[@]} -eq 0 && !curl_absent ]; then
+  return 0
+else
+  if [ !${#missing_deps[@]} -eq 0 && !curl_absent ]; then
+    echo -e "${YELLOW}⚠️ Missing required tools: ${missing_deps[*]}${NC}"
+    local install_cmd=""
+    case "$os" in
+    *debian*)
+      install_cmd="sudo apt update && sudo apt install -y cmake build-essential"
+      ;;
+    *redhat*)
+      install_cmd="sudo dnf update -y && sudo dnf group install -y "Development Tools" && sudo dnf install -y cmake"
+      ;;
+    *)
+      echo -e "${RED}❌ Unsupported OS template. Please install cmake and g++ manually.${NC}"
+      exit 1
+      ;;
+    esac
+  elif [ curl_absent && ${#missing_deps[@]} -eq 0 ]; then
+    case "$os" in
+    *redhat*)
+      install_cmd="sudo dnf install curl"
+      ;;
+    *debian*)
+      install_cmd="sudo apt install curl"
+      ;;
+    esac
+  else
+    case "$os" in
+    *redhat*)
+      install_curl="sudo dnf install curl"
+      install_cmd="sudo dnf update -y && sudo dnf group install -y "Development Tools" && sudo dnf install -y cmake"
+      install_cmd="$install_cmd && $install_curl"
+      ;;
+    *debian*)
+      install_curl="sudo apt install curl"
+      install_cmd="sudo apt update && sudo apt install -y cmake build-essential"
+      install_cmd="$install_cmd && $install_curl"
+      ;;
+    esac
+  fi
+  echo -e "${BLUE}👉 cargopp can install them for you.${NC}"
+  read -p "Do you want to run [ $install_cmd ] ? (Y/n): " response
+  response=${response,,} # Convert to lowercase
+
+  if [[ "$response" =~ ^(yes|y|"") ]]; then
+    echo -e "${BLUE}⚙️ Installing dependencies...${NC}"
+    eval "$install_cmd"
+    if [ $? -ne 0 ]; then
+      echo -e "${RED}❌ Error during dependencies installation.${NC}"
+      exit 1
+    fi
+    echo -e "${GREEN}✅ Dependencies installed successfully!${NC}"
+  else
+    echo -e "${RED}❌ Installation aborted. cargopp requires cmake and g++ to work.${NC}"
+    exit 1
+  fi
+fi

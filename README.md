@@ -41,22 +41,6 @@ curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/lin
 sudo apt update && sudo apt install curl -y
 ```
 
-### Option 2: Standard Git Clone
-If you prefer to keep the source code locally, clone the repository and run the installer manually.
-
-*💡 Note: If `git` is not installed on your Ubuntu/Debian system, install it first:*
-```bash
-sudo apt update && sudo apt install git -y
-```
-
-Then, clone and install `cargopp`:
-```bash
-git clone https://github.com/gabyx540ya/cargopp.git
-cd cargopp
-sudo ./cargopp install
-```
-*(Once installed via Git, you can safely delete the cloned folder if you want).*
-
 ---
 
 ## Usage
