@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -euo pipefail
 # ---- COULEURS ANSI ----
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -108,7 +108,7 @@ find_os_familly() {
 search_cargopp_and_kill() {
   victim=$(which cargopp)
   me=$(pwd)
-  if [ ! -z $victim ]; then
+  if [ ! -z "$victim" ]; then
     echo -e "${RED} a software at the name cargopp is detected ${NC}"
     echo -e "${RED} cargopp want to remove it before installation"
     echo -e "${BLUE} Do you allow cargopp remove it ?.${NC}"
@@ -135,7 +135,9 @@ manage_installation_deb_redhat() {
   check_dependencies_cargopp "$1"
   # create the repertorie .cargopp
   last_position=$(pwd)
-  cd "$HOME"
+  REAL_USER="${SUDO_USER:-$USER}"
+  REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+  cd "$REAL_HOME"
   mkdir .cargopp
   if [[ $? -ne 0 ]]; then
     rm -r .cargopp && mkdir .cargopp
@@ -171,7 +173,7 @@ manage_installation_deb_redhat() {
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/cargopp -o cargopp && chmod +x cargopp
   #position=$(pwd)
   #echo 'export PATH="$PATH:$position"' >>~/.bashrc
-  sudo ln -sfn "$HOME/.cargopp/bin/cargopp" /usr/local/bin/cargopp
+  sudo ln -sfn "$REAL_HOME/.cargopp/bin/cargopp" /usr/local/bin/cargopp
   cd .. # go to .cargopp
   #install version
   curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/cargopp_version -o cargopp_version && chmod +r cargopp_version
