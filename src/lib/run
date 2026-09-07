@@ -2,7 +2,6 @@
 
 run() {
   local name=$1 # start compilation
-
   build_cargopp
   if [ ! -f "build/$name" ]; then
     echo "❌ Error: Build/$name does not exist. Note: if you want to run main do 'cargopp run <project name>'."

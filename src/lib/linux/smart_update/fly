@@ -1,9 +1,10 @@
 #! /usr/bin/env bash
+set -euo pipefail
 
 is_new() {
   version1=$1 # github_version
   version2=$2 # this_version
-  if [ -z "$version1" || -z "$version2" ]; then
+  if [[ -z "$version1" || -z "$version2" ]]; then
     return 1
   fi
   IFS='.' read -r major1 minor1 patch1 <<<$version1
@@ -51,7 +52,7 @@ necessary_to_look_at_github() {
     in_hour=$((actual_unix_time / 3600))
     # count difference of time between the last look at github and actual
     difference=$((in_hour - last_fly))
-    if [ difference -gt 24 ]; then
+    if [[ "$difference" -gt 24 ]]; then
       echo true
     else
       echo false
