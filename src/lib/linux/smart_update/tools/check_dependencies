@@ -4,13 +4,15 @@ echo "🔍 Checking dependencies..."
 os="$1"
 missing_deps=()
 curl_absent=false
-if [ ! command -v cmake ] &>/dev/null; then
+if ! command -v cmake >/dev/null 2>&1; then
   missing_deps+=("cmake")
 fi
-if [ ! command -v g++ ] &>/dev/null || [ ! command -v gcc ] &>/dev/null; then
+
+if ! command -v g++ >/dev/null 2>&1 || ! command -v gcc >/dev/null 2>&1; then
   missing_deps+=("g++")
 fi
-if [ ! command -v curl ] >/dev/null 2>&1; then
+
+if ! command -v curl >/dev/null 2>&1; then
   curl_absent=true
 fi
 
