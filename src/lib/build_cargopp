@@ -2,10 +2,15 @@
 set -euo pipefail
 
 build_cargopp() {
-  echo "🔨 Building project..."
+  local GREEN='\033[0;32m'
+  local RED='\033[0;31m'
+  local YELLOW='\033[0;33m'
+  local BLUE='\033[0;34m'
+  local NC='\033[0m' # No Color
+  echo "${GREEN}🔨 Building project..."
   cmake -B build
   cmake --build build
-  echo "💡 Note: if you have src/bin files to compile,"
-  echo "please notice them in CMakeLists.txt by doing for example:"
-  echo "add_executable(prog src/bin/prog.cpp)"
+  echo "💡${RED} Note: if you have src/bin files to compile,"
+  echo "${RED}please notice them in CMakeLists.txt by doing for example:"
+  echo "${RED}add_executable(prog src/bin/prog.cpp)"
 }
