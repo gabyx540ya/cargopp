@@ -8,18 +8,17 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # external scripts
-ROOT=$(which cargopp)
-USERROOT=$(pwd)
-source "$ROOT"/lib/run
-source "$ROOT"/lib/build_cargopp
-source "$ROOT"/lib/new_cargopp
-source "$ROOT"/lib/setup/smart_update/update
-source "$ROOT"/lib/setup/smart_update/fly
-cd "$ROOT"
-cd ..
-ROOT1=$(pwd) # cargopp_version position
-source "$ROOT1"/cargopp_version
-cd $USERROOT
+
+REAL_USER="${SUDO_USER:-$USER}"
+REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+ROOT="$REAL_HOME/.cargopp"
+#USERROOT=$(pwd)
+source "$ROOT"/bin/lib/run
+source "$ROOT"/bin/lib/build_cargopp
+source "$ROOT"/bin/lib/new_c
+source "$ROOT"/bin/lib/new_cpp
+update="source '$ROOT'/bin/lib/smart_update/update"
+source "$ROOT"/bin/lib/smart_update/fly
 
 ## argument initialization
 
@@ -31,16 +30,24 @@ fi
 COMMAND="$1"
 
 case "$COMMAND" in
-
 new)
   fly
-  if [ "$#" -ne 2 ]; then
-    echo "Usage: cargopp new <project_name>"
+
+  if [ "$#" -lt 2 ]; then
+    echo "Usage: cargopp new <project_name> [--c]"
     exit 1
   fi
 
   PROJECT="$2"
-  new_cargopp "$PROJECT"
+
+  if [ "$#" -eq 2 ]; then
+    new_cpp "$PROJECT"
+  elif [ "$#" -eq 3 ] && [ "$3" = "--c" ]; then
+    new_c "$PROJECT"
+  else
+    echo "Usage: cargopp new <project_name> [--c]"
+    exit 1
+  fi
   ;;
 
 build)
@@ -60,11 +67,11 @@ run)
   run "$FILENAME"
   ;;
 update)
-  update
+  eval "$update"
   ;;
-*version)
+--version|version)
   fly
-  cargopp_version
+  echo $(cat "$ROOT"/cargopp_version)
   ;;
 *)
   echo "Error: command '$COMMAND' not recognized."
@@ -74,6 +81,7 @@ update)
   echo "  --version            See local version"
   echo "  install              Install cargopp globally"
   echo "  new <name>           Create a new C++ project"
+  echo "  new <name> --c       Create a new C project"
   echo "  build                Build the current project"
   echo "  run <program>        Build and run a program"
   exit 2

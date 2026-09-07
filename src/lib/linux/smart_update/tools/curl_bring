@@ -1,0 +1,33 @@
+#! /usr/bin/env bash
+
+# consider that we are in lib folder
+
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_c -o new_c && chmod +x new_c
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_cpp -o new_cpp && chmod +x new_cpp
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/build_cargopp -o build_cargopp && chmod +x build_cargopp
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/run -o run && chmod +x run
+cd smart_update
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/fly -o fly && chmod +x fly
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/update -o update && chmod +x update
+
+cd tools
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/tools/check_dependencies -o check_dependencies && chmod +x check_dependencies
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/tools/curl_bring -o curl_bring && chmod +x curl_bring
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/tools/find_os -o find_os && chmod +x find_os
+
+cd .. # go to smart_update
+cd .. # go to lib
+#install cargopp from git and make his folder global
+cd .. # go to bin
+
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/cargopp -o cargopp && chmod +x cargopp
+#position=$(pwd)
+#echo 'export PATH="$PATH:$position"' >>~/.bashrc
+#sudo ln -sfn "$REAL_HOME/.cargopp/bin/cargopp" /usr/local/bin/cargopp
+cd .. # go to .cargopp
+#install version
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/cargopp_version -o cargopp_version && chmod +r cargopp_version
+cd .cache
+curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/.cache/version -o version && chmod +r version
+cd .. # go to .cargopp
+cd bin/lib

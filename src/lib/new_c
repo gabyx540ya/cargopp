@@ -1,15 +1,15 @@
-#! usr/bin/env bash
+#!/usr/bin/env bash
 
 # ---- ANSI COLORS ----
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
 
 #new cargopp --c
 
 new_c() {
+  local GREEN='\033[0;32m'
+  local RED='\033[0;31m'
+  local YELLOW='\033[0;33m'
+  local BLUE='\033[0;34m'
+  local NC='\033[0m' # No Color
   local name="$1"
 
   if [ -z "$name" ]; then

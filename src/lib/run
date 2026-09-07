@@ -1,6 +1,6 @@
-#! usr/bin/env bash
+#!/usr/bin/env bash
 
-run_cargopp() {
+run() {
   local name=$1 # start compilation
 
   build_cargopp
