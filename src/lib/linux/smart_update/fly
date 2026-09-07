@@ -43,7 +43,7 @@ necessary_to_look_at_github() {
     return 1
   fi
   cd "$home"
-  if [ ! -f .last_fly ]; then
+  if [[ ! -f .last_fly || -z "$(cat .last_fly)" ]]; then
     touch .last_fly
     echo true
   else
@@ -62,10 +62,17 @@ necessary_to_look_at_github() {
   return 0
 }
 last_fly_update() {
-  #consider that we're in smart_update folder
+  local home="$1"
+  local user_home="$2"
+  if [[ -z "$home" || -z "$user_home" ]]; then
+    return 1
+  fi
+  cd "$home"
+
   actual_unix_time=$(date +%s)
   in_hour=$((actual_unix_time / 3600))
   echo "$in_hour" >.last_fly
+  cd "$user_home"
 }
 has_new_version() {
   local home="$1"
@@ -103,7 +110,7 @@ fly() {
   look_at_github=$(necessary_to_look_at_github "$home" "$pos")
   if [[ "$look_at_github" == true ]]; then
     github_version=$(curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/.cache/version)
-    last_fly_update
+    last_fly_update "$home" "$pos"
     new_version=$(has_new_version "$home" "$pos" "$github_version")
     if [[ "$new_version" == true ]]; then
       new_version_notifier "$github_version"

@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-
+set -euo pipefail
 echo "🔍 Checking dependencies..."
 os="$1"
 missing_deps=()
@@ -16,7 +16,7 @@ fi
 
 # stop if everythink is good
 
-if [ "${#missing_deps[@]}" -eq 0 && "$curl_absent" == false ]; then
+if [[ "${#missing_deps[@]}" -eq 0 && "$curl_absent" == false ]]; then
   return 0
 else
   install_curl=""
