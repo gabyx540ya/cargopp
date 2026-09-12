@@ -121,7 +121,7 @@ install_mover() {
   fi
   mv "$ROOT/$extracted_dir" "$ROOT/.cargopp"
   cd "$ROOT"/.cargopp
-  if [[ -d "$ROOT/.cargopp/src" ]]; then
+  if [[ -d "$ROOT/src" ]]; then
     mv "$ROOT/.cargopp/src" "$ROOT/.cargopp/bin"
   fi
   cd .. #go to root
