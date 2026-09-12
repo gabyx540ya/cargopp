@@ -13,7 +13,7 @@ run() {
   local name=$1 # start compilation
   shift 1
   local program_arguments=$@
-  build_cargopp
+  build_cargopp >/dev/null
   if [ ! -f "build/$name" ]; then
     echo "❌ Error: Build/$name does not exist. Use <cargopp --help --run> to see in particulary how to use <cargopp run>."
     return 1

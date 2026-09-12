@@ -55,7 +55,7 @@ build)
 
 run)
   fly
-  if [ "$#" -ne 2 ]; then
+  if [ "$#" -lt 2 ]; then
     echo "Error: cargopp run requires a program name"
     echo "Usage: cargopp run <program_name>"
     echo -e "Use <cargopp --help --run> to see in particular how to use correctly cargopp run"
