@@ -6,15 +6,8 @@ REAL_USER="${SUDO_USER:-$USER}"
 REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
 ROOT="$REAL_HOME/.cargopp"
 #USERROOT=$(pwd)
-source "$ROOT"/bin/lib/run
-source "$ROOT"/bin/lib/build_cargopp
-source "$ROOT"/bin/lib/new_c
-source "$ROOT"/bin/lib/new_cpp
-source "$ROOT"/bin/lib/smart_update/update
+
 source "$ROOT"/bin/lib/smart_update/fly
-source "$ROOT"/bin/lib/uninstall
-source "$ROOT"/bin/lib/help/help
-source "$ROOT"/bin/lib/clean
 source "$ROOT"/bin/lib/paint
 
 ## argument initialization
@@ -38,8 +31,10 @@ new)
   PROJECT="$2"
 
   if [ "$#" -eq 2 ]; then
+    source "$ROOT"/bin/lib/new_cpp
     new_cpp "$PROJECT"
   elif [ "$#" -eq 3 ] && [ "$3" = "--c" ]; then
+    source "$ROOT"/bin/lib/new_c
     new_c "$PROJECT"
   else
     echo "Usage: cargopp new <project_name> [--c]"
@@ -49,6 +44,7 @@ new)
 
 build)
   fly
+  source "$ROOT"/bin/lib/build_cargopp
   build_cargopp
   ;;
 
@@ -60,7 +56,7 @@ run)
     echo -e "Use <cargopp --help --run> to see in particular how to use correctly cargopp run"
     exit 1
   fi
-
+  source "$ROOT"/bin/lib/run
   FILENAME="$2"
   shift 2
   number_arg="$#"
@@ -72,6 +68,7 @@ run)
   fi
   ;;
 update)
+  source "$ROOT"/bin/lib/smart_update/update
   update
   ;;
 --version | version)
@@ -79,13 +76,16 @@ update)
   echo $(cat "$ROOT"/cargopp_version)
   ;;
 --uninstall | uninstall)
+  source "$ROOT"/bin/lib/uninstall
   uninstall
   ;;
 --help)
+  source "$ROOT"/bin/lib/help/help
   arguments=$@
   help $arguments
   ;;
 clean)
+  source "$ROOT"/bin/lib/clean
   clean
   ;;
 *)

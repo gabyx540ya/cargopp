@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-set -e pipefail
-
 # external scripts
 
 REAL_USER="${SUDO_USER:-$USER}"
