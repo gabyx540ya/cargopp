@@ -70,7 +70,7 @@ last_fly_update() {
 
   actual_unix_time=$(date +%s)
   in_hour=$((actual_unix_time / 3600))
-  echo "$in_hour" >.last_fly
+  echo "$in_hour" >"$home/.last_fly"
   cd "$user_home"
 }
 has_new_version() {
