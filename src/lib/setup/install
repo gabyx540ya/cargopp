@@ -108,11 +108,21 @@ find_os_familly() {
 
 install_mover() {
   #suppose that we're in root
-  mv cargopp-main .cargopp
-  cd .cargopp
-  mv src/ bin
-  cd .. # go to the root
-  rm cargopp-main.tar.gz
+  local ROOT="$1"
+  local archive="cargopp.tar.gz"
+  local extracted_dir
+  extracted_dir=$(tar -tzf "$archive" | head -n 1 | cut -d/ -f1)
+  if [[ -z "$extracted_dir" ]]; then
+    echo "cargopp:Install:Error : empty or invalid archive "
+    exit 1
+  fi
+  mv "$extracted_dir" "$ROOT"/.cargopp
+  cd "$ROOT"/.cargopp
+  if [[ -d src ]]; then
+    mv src bin
+  fi
+  cd .. #go to root
+  rm -f "$archive"
 }
 install_curl_bring() {
   curl -L https://github.com/gabyx540ya/cargopp/archive/refs/heads/main.tar.gz -o cargopp.tar.gz
@@ -134,7 +144,7 @@ manage_installation_deb_redhat() {
   # installing git repositories
   echo "⚙️ installing git repositories of cargopp.."
   install_curl_bring
-  install_mover
+  install_mover "$REAL_HOME"
   sudo ln -sfn "$REAL_HOME/.cargopp/bin/cargopp" /usr/local/bin/cargopp
   cd $last_position
   rm -- "$(basename "$0")" >/dev/null 2>&1
