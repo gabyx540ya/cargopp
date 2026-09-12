@@ -116,7 +116,10 @@ install_mover() {
     echo "cargopp:Install:Error : empty or invalid archive "
     exit 1
   fi
-  mv "$extracted_dir" "$ROOT"/.cargopp
+  if [[ -d "$ROOT/.cargopp" ]]; then
+    rm -rf "$ROOT/.cargopp"
+  fi
+  mv "$extracted_dir" "$ROOT/.cargopp"
   cd "$ROOT"/.cargopp
   if [[ -d src ]]; then
     mv src bin
