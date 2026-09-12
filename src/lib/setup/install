@@ -149,6 +149,7 @@ manage_installation_deb_redhat() {
   install_curl_bring
   install_mover "$REAL_HOME"
   sudo ln -sfn "$REAL_HOME/.cargopp/bin/cargopp" /usr/local/bin/cargopp
+  sudo chown -R "$REAL_USER":"$REAL_USER" ~/.cargopp
   cd $last_position
   rm -- "$(basename "$0")" >/dev/null 2>&1
   echo "cargopp installed with success!"
