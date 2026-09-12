@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+
+set -e pipefail
+
+cmakelist_cmd(){
+  REAL_USER="${SUDO_USER:-$USER}"
+  REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+  ROOT="$REAL_HOME/.cargopp"
+  source "$ROOT"/bin/lib/paint
+  echo -e "💡${RED} Note: if you have src/bin files to compile apart" 
+  echo -e "${RED}notice them in CMakeLists.txt by doing for example:" 
+  echo -e "${BLUE}add_executable(prog src/bin/prog.cpp)${NC}" 
+}

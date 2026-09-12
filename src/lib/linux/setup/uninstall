@@ -1,0 +1,52 @@
+#!/bin/bash
+set -euo pipefail
+
+# ---- COULEURS ANSI ----
+
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+usage() {
+  echo "Use: <cargopp --help> to know about commands" >&2
+}
+abort() {
+  echo -e "${RED}❌ Uninstallation aborted. ${NC}" >&2
+}
+succes() {
+  echo -e "${GREEN}cargopp uninstalled with succes."
+}
+uninstall_cargopp() {
+  echo -e "${RED}👉 Uninstallation of cargopp.${NC}" >&2
+  read -p "Do you really want to uninstall cargopp ? (Y/N): " response
+  response=${response,,} # Convert to lowercase
+
+  if [[ "$response" == y ]]; then
+    echo true
+  elif [[ "$response" == n ]]; then
+    echo false
+  else
+    echo -e "${RED}❌ Error during confirmation .${NC}" >&2
+    usage
+    echo false
+  fi
+  return 0
+}
+uninstall() {
+  uninstall_confirmation=$(uninstall_cargopp)
+  if [[ "$uninstall_confirmation" == true ]]; then
+    search_cargopp_and_kill
+    last_position=$(pwd)
+    REAL_USER="${SUDO_USER:-$USER}"
+    REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+    cd "$REAL_HOME"
+    if [[ -d .cargopp ]]; then
+      rm -rf .cargopp
+    fi
+    succes
+  else
+    abort
+  fi
+}

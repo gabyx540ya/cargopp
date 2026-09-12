@@ -1,0 +1,22 @@
+#! /usr/bin/env bash
+
+set -euo pipefail
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+clean_show_errror() {
+  echo "the folder /build not found"
+}
+clean() {
+  rm -r /build >/dev/null 2>&1
+  local return=$(echo $?)
+  if [[ "$return" -ne 0 ]]; then
+    if [[ ! -d "build" ]]; then
+      clean_show_errror
+    fi
+  fi
+}
+#  echo -e "use: cd <project>"
+# echo -e "     cargopp clean"

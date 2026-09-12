@@ -122,7 +122,54 @@ search_cargopp_and_kill() {
     fi
   fi
 }
+install_skeleton() {
+  mkdir -p .cargopp/bin/lib/help/commands
+  mkdir -p .cargopp/bin/lib/smart_update/tools
+  mkdir -p .cargopp/.cache
+}
+install_curl_bring() {
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_c -o new_c && chmod +x new_c
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_cpp -o new_cpp && chmod +x new_cpp
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/build_cargopp -o build_cargopp && chmod +x build_cargopp
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/run -o run && chmod +x run
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/clean -o clean && chmod +x clean
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/setup/uninstall -o uninstall && chmod +x uninstall
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/paint -o paint && chmod +x paint
+  cd smart_update
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/fly -o fly && chmod +x fly
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/update -o update && chmod +x update
+  cd tools
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/tools/check_dependencies -o check_dependencies && chmod +x check_dependencies
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/tools/curl_bring -o curl_bring && chmod +x curl_bring
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/tools/find_os -o find_os && chmod +x find_os
 
+  cd .. # go to smart_update
+  cd .. # go to lib
+  cd help
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/help/help -o help && chmod +x help
+  cd commands
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/help/commands/commands -o commands && chmod +x commands
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/help/commands/run_cmd -o run_cmd && chmod +x run_cmd
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/help/commands/build_cmd -o build_cmd && chmod +x build_cmd
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/help/commands/clean_cmd -o clean_cmd && chmod +x clean_cmd
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/help/commands/cmakelist_cmd -o cmakelist_cmd && chmod +x cmakelist_cmd
+  cd .. #go to help
+  cd .. # go to lib
+  #install cargopp from git and make his folder global
+  cd .. # go to bin
+
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/cargopp -o cargopp && chmod +x cargopp
+  #position=$(pwd)
+  #echo 'export PATH="$PATH:$position"' >>~/.bashrc
+  #sudo ln -sfn "$REAL_HOME/.cargopp/bin/cargopp" /usr/local/bin/cargopp
+  cd .. # go to .cargopp
+  #install version
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/cargopp_version -o cargopp_version && chmod +r cargopp_version
+  cd .cache
+  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/.cache/version -o version && chmod +r version
+  cd .. # go to .cargopp
+  cd bin/lib
+}
 manage_installation_deb_redhat() {
   echo "Installation of cargopp In the system.."
   if [ "$EUID" -ne 0 ]; then
@@ -140,40 +187,15 @@ manage_installation_deb_redhat() {
   if [[ -d .cargopp ]]; then
     rm -rf .cargopp && mkdir .cargopp
   fi
-  mkdir .cargopp/bin
+  install_skeleton
   # installing git repositories
   echo "⚙️ installing git repositories of cargopp.."
   cd .cargopp/bin
-  mkdir lib
-  mkdir lib/smart_update
-  mkdir lib/smart_update/tools
   cd lib
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_c -o new_c && chmod +x new_c
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/new_cpp -o new_cpp && chmod +x new_cpp
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/build_cargopp -o build_cargopp && chmod +x build_cargopp
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/run -o run && chmod +x run
-  cd smart_update
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/fly -o fly && chmod +x fly
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/update -o update && chmod +x update
-  cd tools
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/tools/check_dependencies -o check_dependencies && chmod +x check_dependencies
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/tools/curl_bring -o curl_bring && chmod +x curl_bring
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/lib/linux/smart_update/tools/find_os -o find_os && chmod +x find_os
-  cd .. # go to smart_update
-  cd .. # go to lib
-  #install cargopp from git and make his folder global
-  cd .. # go to bin
   # search the cargopp and kill it
   search_cargopp_and_kill
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/src/cargopp -o cargopp && chmod +x cargopp
-  #position=$(pwd)
-  #echo 'export PATH="$PATH:$position"' >>~/.bashrc
+  install_curl_bring
   sudo ln -sfn "$REAL_HOME/.cargopp/bin/cargopp" /usr/local/bin/cargopp
-  cd .. # go to .cargopp
-  #install version
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/cargopp_version -o cargopp_version && chmod +r cargopp_version
-  mkdir .cache && cd .cache
-  curl -fsSL https://raw.githubusercontent.com/gabyx540ya/cargopp/main/.cache/version -o version && chmod +r version
   cd .. # go to .cargopp
   cd $last_position
   rm -- "$(basename "$0")" >/dev/null 2>&1

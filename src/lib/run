@@ -1,13 +1,25 @@
 #!/usr/bin/env bash
 
+set -e pipefail
+
+# external scripts
+
+REAL_USER="${SUDO_USER:-$USER}"
+REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+ROOT="$REAL_HOME/.cargopp"
+#USERROOT=$(pwd)
+source "$ROOT"/bin/lib/build_cargopp
+source "$ROOT"/bin/lib/paint
+
 run() {
   local name=$1 # start compilation
+  shift 1
+  local program_arguments=$@
   build_cargopp
   if [ ! -f "build/$name" ]; then
-    echo "❌ Error: Build/$name does not exist. Note: if you want to run main do 'cargopp run <project name>'."
-    exit 1
+    echo "❌ Error: Build/$name does not exist. Use <cargopp --help --run> to see in particulary how to use <cargopp run>."
+    return 1
+  else
+    ./build/"$name" $program_arguments
   fi
-
-  ./build/"$name"
-
 }

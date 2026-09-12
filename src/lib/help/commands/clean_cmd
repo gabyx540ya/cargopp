@@ -1,0 +1,14 @@
+#!/usr/bin/bash
+
+set -euo pipefail
+
+REAL_USER="${SUDO_USER:-$USER}"
+REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+ROOT="$REAL_HOME/.cargopp"
+
+source "$ROOT"/bin/lib/paint
+
+clean_cmd() {
+  echo -e "${BLUE} cd <project>"
+  echo -e "${NC}To clean build use:${BLUE} cargopp clean"
+}

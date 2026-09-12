@@ -1,0 +1,35 @@
+#! /usr/bin/env bash
+
+set -e pipefail
+
+# external scripts
+
+REAL_USER="${SUDO_USER:-$USER}"
+REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+ROOT="$REAL_HOME/.cargopp"
+source "$ROOT"/bin/lib/paint
+source "$ROOT"/bin/lib/help/commands/commands
+help() {
+  local narg="$#"
+  if [[ "$arg" -lt 1 ]]; then
+    echo -e "${GREEN}Usage: cargopp <command> [argument]\n"
+    echo -e "  Commands:                          description${NC}\n"
+
+    echo -e "  ${BLUE}install${NC}              Install cargopp globally"
+    echo -e "  ${BLUE}update${NC}               Update cargopp"
+    echo -e "  ${BLUE}new <name>${NC}           Create a new C++ project"
+    echo -e "  ${BLUE}new <name> --c${NC}       Create a new C project"
+    echo -e "  ${BLUE}build${NC}                Build the current project"
+    echo -e "  ${BLUE}run <program>${NC}        Build and run a program"
+    echo -e "  ${BLUE}uninstall${NC}            Uninstall definitely cargopp"
+    echo -e "  ${BLUE}clean${NC}                clean all build's binary files"
+    echo -e "  ${BLUE}--version${NC}            See local version"
+    echo -e "  ${BLUE}--help${NC}               To see all cargopp's commands and their utility"
+    echo ""
+    echo -e"   ${BLUE}--help --run${NC}         TO see in particular how to use command <run>"
+    echo -e"   ${BLUE}--help --clean${NC}       TO see in particular how to use command <clean>"
+    echo -e"   ${BLUE}--help --build${NC}       TO see in particular how to use command <build>"
+  else
+    commands $@
+  fi
+}

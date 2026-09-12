@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# ---- COULEURS ANSI ----
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-YELLOW='\033[0;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
 # external scripts
 
 REAL_USER="${SUDO_USER:-$USER}"
@@ -17,8 +10,12 @@ source "$ROOT"/bin/lib/run
 source "$ROOT"/bin/lib/build_cargopp
 source "$ROOT"/bin/lib/new_c
 source "$ROOT"/bin/lib/new_cpp
-update="source '$ROOT'/bin/lib/smart_update/update"
+source "$ROOT"/bin/lib/smart_update/update
 source "$ROOT"/bin/lib/smart_update/fly
+source "$ROOT"/bin/lib/uninstall
+source "$ROOT"/bin/lib/help/help
+source "$ROOT"/bin/lib/clean
+source "$ROOT"/bin/lib/paint
 
 ## argument initialization
 
@@ -60,30 +57,40 @@ run)
   if [ "$#" -ne 2 ]; then
     echo "Error: cargopp run requires a program name"
     echo "Usage: cargopp run <program_name>"
+    echo -e "Use <cargopp --help --run> to see in particular how to use correctly cargopp run"
     exit 1
   fi
 
   FILENAME="$2"
-  run "$FILENAME"
+  shift 2
+  number_arg="$#"
+  if [[ "$number_arg" -gt 0 ]]; then
+    arguments=$@
+    run "$FILENAME" $arguments
+  else
+    run "$FILENAME"
+  fi
   ;;
 update)
-  eval "$update"
+  update
   ;;
---version|version)
+--version | version)
   fly
   echo $(cat "$ROOT"/cargopp_version)
   ;;
+--uninstall | uninstall)
+  uninstall
+  ;;
+--help)
+  arguments=$@
+  help $arguments
+  ;;
+clean)
+  clean
+  ;;
 *)
   echo "Error: command '$COMMAND' not recognized."
-  echo "Usage: cargopp <command> [argument]"
-  echo ""
-  echo "Commands:"
-  echo "  --version            See local version"
-  echo "  install              Install cargopp globally"
-  echo "  new <name>           Create a new C++ project"
-  echo "  new <name> --c       Create a new C project"
-  echo "  build                Build the current project"
-  echo "  run <program>        Build and run a program"
+  echo "Use cargopp --help               To see all cargopp's commands and their utility"
   exit 2
   ;;
 

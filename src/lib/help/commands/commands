@@ -1,0 +1,27 @@
+#!/usr/bin/bash
+
+set -euo pipefail
+
+REAL_USER="${SUDO_USER:-$USER}"
+REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+ROOT="$REAL_HOME/.cargopp"
+
+#USERROOT=$(pwd)
+source "$ROOT"/bin/lib/help/commands/run_cmd
+source "$ROOT"/bin/lib/help/commands/build_cmd
+source "$ROOT"/bin/lib/help/commands/clean_cmd
+commands() {
+  command=$1
+  case "$command" in
+  --build | build)
+    build_cmd
+    ;;
+  --clean | clean)
+    clean_cmd
+    ;;
+  --run | run)
+    run_cmd
+    ;;
+  esac
+
+}

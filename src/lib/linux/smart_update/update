@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# ---- COULEURS ANSI ----
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
@@ -10,39 +9,45 @@ NC='\033[0m' # No Color
 REAL_USER="${SUDO_USER:-$USER}"
 REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
 
-# external scripts
-fos="source '$REAL_HOME'/.cargopp/bin/lib/smart_update/tools/find_os"
-cb="source '$REAL_HOME'/.cargopp/bin/lib/smart_update/tools/curl_bring"
-cdep="source '$REAL_HOME'/.cargopp/bin/lib/smart_update/tools/check_dependencies"
+update_skeleton() {
+  mkdir -p bin/lib/help/commands
+  mkdir -p bin/lib/smart_update/tools
+}
+update_manager() {
+  # external scripts
+  source "$REAL_HOME"/.cargopp/bin/lib/smart_update/tools/curl_bring
+  source "$REAL_HOME"/.cargopp/bin/lib/smart_update/tools/check_dependencies
 
-manage_installation_deb_redhat() {
   echo "Installation of cargopp In the system.."
   # chech dependencies
-
-  eval "$cdep" "$1" # check_dependencies
-  user_position="$(pwd)"
-  my_position="$REAL_HOME/.cargopp"
+  check_dependencies "$1" # check_dependencies
+  local user_position="$(pwd)"
+  local my_position="$REAL_HOME/.cargopp"
   cd "$my_position"
   # installing git repositories
   echo "⚙️ installing git repositories of cargopp.."
+  update_skeleton
   cd bin
   cd lib
-  eval "$cb"
+  curl_bring
   cd $user_position
   echo "cargopp updated with success!"
   exit 0
-}
 
-OS=$(eval "$fos")
-case "$OS" in
-*debian*)
-  manage_installation_deb_redhat "$OS"
-  ;;
-*redhat*)
-  manage_installation_deb_redhat "$OS"
-  ;;
-*)
-  echo -e "${RED}❌ Unsupported OS template. Please install cmake and g++ manually.${NC}"
-  exit 1
-  ;;
-esac
+}
+update() {
+  source "$REAL_HOME"/.cargopp/bin/lib/smart_update/tools/find_os
+  OS=$(find_os)
+  case "$OS" in
+  *debian*)
+    update_manager
+    ;;
+  *redhat*)
+    update_manager
+    ;;
+  *)
+    echo -e "${RED}❌ Unsupported OS template. Please install cmake and g++ manually.${NC}"
+    exit 1
+    ;;
+  esac
+}

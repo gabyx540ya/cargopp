@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+set -euo pipefail
+
+run_cmd() {
+  REAL_USER="${SUDO_USER:-$USER}"
+  REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+  ROOT="$REAL_HOME/.cargopp"
+  source "$ROOT"/bin/lib/paint
+  echo -e "${BLUE}cd <project>"
+  echo -e "${NC}To run executable use:"
+  echo -e "     ${BLUE}cargopp run <bin program name>${NC}"
+  echo -e "💡 Tip:  executable file equivalent to <main> bear the project name"
+  source "$ROOT"/bin/lib/help/cmakelist_cmd
+}

@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+
+set -e pipefail
+
+build_cmd() {
+  REAL_USER="${SUDO_USER:-$USER}"
+  REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+  ROOT="$REAL_HOME/.cargopp"
+  source "$ROOT"/bin/lib/paint
+  echo -e "${BLUE} cd <project>"
+  echo -e "${NC}Use:${BLUE} cargopp build${NC}"
+  source "$ROOT"/bin/lib/help/commands/cmakelist_cmd
+}

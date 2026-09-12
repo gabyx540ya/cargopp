@@ -1,16 +1,38 @@
 #!/usr/bin/env bash
-set -euo pipefail
+
+# external scripts
+
+REAL_USER="${SUDO_USER:-$USER}"
+REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+ROOT="$REAL_HOME/.cargopp"
+#USERROOT=$(pwd)
+source "$ROOT"/bin/lib/paint
+run_necessary_build() {
+  local src=$(stat -c "%Y" src)
+  local cmkl=$(stat -c "%Y" CMakeLists.txt)
+  local build=$(stat -c "%Y" build)
+  if [[ "$src" -gt "$build" || "$cmkl" -gt "$build" ]]; then
+    echo true
+  else
+    echo false
+  fi
+}
+build_everygood() {
+  echo -e "${GREEN}build is up to date ${NC}" >&2
+}
 
 build_cargopp() {
-  local GREEN='\033[0;32m'
-  local RED='\033[0;31m'
-  local YELLOW='\033[0;33m'
-  local BLUE='\033[0;34m'
-  local NC='\033[0m' # No Color
-  echo -e "${GREEN}🔨 Building project...${NC}"
-  cmake -B build
-  cmake --build build
-  echo -e "💡${RED} Note: if you have src/bin files to compile,"
-  echo -e "${RED}please notice them in CMakeLists.txt by doing for example:"
-  echo -e "${RED}add_executable(prog src/bin/prog.cpp)${NC}"
+  if [[ -d "build" && -f "CMakeLists.txt" && -d "src" ]]; then
+    necessary_build=$(run_necessary_build)
+    if [[ "$necessary_build" == true ]]; then
+      echo -e "${GREEN}🔨 Building project...${NC}"
+      cmake -B build
+      cmake --build build
+    else
+      build_everygood
+    fi
+  else
+    echo -e "${RED}CMakeLists not found."
+    echo -e "<Use: ${BLUE}cargopp --help --build>${NC}to see how to use cargopp build"
+  fi
 }
