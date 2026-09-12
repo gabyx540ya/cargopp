@@ -42,8 +42,8 @@ necessary_to_look_at_github() {
     return 1
   fi
   cd "$home"
-  if [[ ! -f .last_fly || -z "$(cat .last_fly)" ]]; then
-    touch .last_fly
+  if [[ ! -f "$home/.last_fly" || -z "$(cat $home/.last_fly)" ]]; then
+    touch "$home/.last_fly"
     echo true
   else
     last_fly=$(cat .last_fly)
