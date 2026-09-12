@@ -111,18 +111,18 @@ install_mover() {
   local ROOT="$1"
   local archive="cargopp.tar.gz"
   local extracted_dir
-  extracted_dir=$(tar -tzf "$archive" | head -n 1 | cut -d/ -f1)
+  extracted_dir=$(tar -tzf "$archive" 2>/dev/null | head -n 1 | cut -d/ -f1 || true)
   if [[ -z "$extracted_dir" ]]; then
     echo "cargopp:Install:Error : empty or invalid archive "
     exit 1
   fi
-  if [[ -d "$ROOT/.cargopp" ]]; then
+  if [[ -e "$ROOT/.cargopp" ]]; then
     rm -rf "$ROOT/.cargopp"
   fi
-  mv "$extracted_dir" "$ROOT/.cargopp"
+  mv "$ROOT/$extracted_dir" "$ROOT/.cargopp"
   cd "$ROOT"/.cargopp
-  if [[ -d src ]]; then
-    mv src bin
+  if [[ -d "$ROOT/src" ]]; then
+    mv "$ROOT/.cargopp/src" "$ROOT/.cargopp/bin"
   fi
   cd .. #go to root
   rm -f "$archive"
