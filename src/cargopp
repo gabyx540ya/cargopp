@@ -9,14 +9,19 @@ ROOT="$REAL_HOME/.cargopp"
 
 source "$ROOT"/bin/lib/smart_update/fly
 source "$ROOT"/bin/lib/paint
+verify_owner() {
+  local owner=$(ls -ld "$REAL_HOME/.cargopp" 2>/dev/null | awk '{print $3}')
+  if [[ "$owner" != "$REAL_USER" ]]; then
+    sudo chown -R "$REAL_USER:$REAL_USER" "$REAL_HOME/.cargopp"
+  fi
+}
 
 ## argument initialization
-
 if [ "$#" -lt 1 ]; then
   echo "Usage: cargopp <command> [argument]"
   exit 1
 fi
-
+verify_owner
 COMMAND="$1"
 
 case "$COMMAND" in
