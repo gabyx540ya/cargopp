@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+
+# consider that we are in root
+curl_bring() {
+  curl -L https://github.com/gabyx540ya/cargopp/archive/refs/heads/main.tar.gz -o cargopp.tar.gz
+  tar -xzf cargopp.tar.gz
+}

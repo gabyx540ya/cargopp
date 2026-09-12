@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+
+update_mover() {
+  #suppose that we're in root
+  mv cargopp-main .cargopp
+  cd .cargopp
+  mv src/ bin
+  cd .. # go to the root
+  rm cargopp-main.tar.gz
+}

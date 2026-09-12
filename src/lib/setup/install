@@ -1,0 +1,158 @@
+#!/bin/bash
+set -euo pipefail
+# ---- COULEURS ANSI ----
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# cargopp check_dependencies
+
+check_dependencies_cargopp() {
+  echo "🔍 Checking dependencies..."
+  local os="$1"
+  local missing_deps=()
+  local curl_absent=false
+  if ! command -v cmake &>/dev/null; then missing_deps+=("cmake"); fi
+  if ! command -v g++ &>/dev/null && ! command -v gcc &>/dev/null; then missing_deps+=("g++"); fi
+  if ! command -v curl >/dev/null 2>&1; then curl_absent=true; fi
+
+  # stop if everythink is good
+
+  if [ "${#missing_deps[@]}" -eq 0 ] && [ "$curl_absent" == false ]; then
+    return 0
+  else
+    if [ "$curl_absent" == true ]; then
+      case "$os" in
+      *redhat*)
+        install_curl="sudo dnf install curl"
+        ;;
+      *debian*)
+        install_curl="sudo apt install curl"
+        ;;
+      *)
+        echo -e "${RED}❌ Unsupported OS template. You can install cmake and g++ manually.${NC}"
+        exit 1
+        ;;
+      esac
+    else
+      install_curl=""
+    fi
+
+    if [ ! "${#missing_deps[@]}" -eq 0 ]; then
+      echo -e "${YELLOW}⚠️ Missing required tools: ${missing_deps[*]}${NC}"
+      local install_cmd=""
+      case "$os" in
+      *debian*)
+        install_cmd="sudo apt update && sudo apt install -y cmake build-essential"
+        ;;
+      *redhat*)
+        install_cmd="sudo dnf update -y && sudo dnf group install -y 'Development Tools' && sudo dnf install -y cmake"
+        ;;
+      *)
+        echo -e "${RED}❌ Unsupported OS template. You can install cmake and g++ manually.${NC}"
+        exit 1
+        ;;
+      esac
+      if [ ! -z "$install_curl" ]; then
+        install_cmd="$install_cmd && $install_curl"
+      fi
+    else
+      install_cmd="$install_curl"
+    fi
+
+    echo -e "${BLUE}👉 cargopp can install them for you.${NC}"
+    read -p "Do you want to run [ $install_cmd ] ? (Y/n): " response
+    response=${response,,} # Convert to lowercase
+
+    if [[ "$response" =~ ^(yes|y|"") ]]; then
+      echo -e "${BLUE}⚙️ Installing dependencies...${NC}"
+      eval "$install_cmd"
+      if [ $? -ne 0 ]; then
+        echo -e "${RED}❌ Error during dependencies installation.${NC}"
+        exit 1
+      fi
+      echo -e "${GREEN}✅ Dependencies installed successfully!${NC}"
+    else
+      echo -e "${RED}❌ Installation aborted. cargopp requires cmake and g++ to work.${NC}"
+      exit 1
+    fi
+  fi
+
+}
+
+find_os_familly() {
+
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    OS_FAMILY="macos"
+
+  elif command -v apt >/dev/null 2>&1; then
+    OS_FAMILY="debian"
+
+  elif command -v dnf >/dev/null 2>&1; then
+    OS_FAMILY="redhat"
+
+  elif command -v pacman >/dev/null 2>&1; then
+    OS_FAMILY="arch"
+
+  elif command -v zypper >/dev/null 2>&1; then
+    OS_FAMILY="suse"
+
+  else
+    OS_FAMILY="unknown"
+  fi
+
+  echo "$OS_FAMILY"
+}
+
+install_mover() {
+  #suppose that we're in root
+  mv cargopp-main .cargopp
+  cd .cargopp
+  mv src/ bin
+  cd .. # go to the root
+  rm cargopp-main.tar.gz
+}
+install_curl_bring() {
+  curl -L https://github.com/gabyx540ya/cargopp/archive/refs/heads/main.tar.gz -o cargopp.tar.gz
+  tar -xzf cargopp.tar.gz
+}
+manage_installation_deb_redhat() {
+  echo "Installation of cargopp In the system.."
+  if [ "$EUID" -ne 0 ]; then
+    echo "Error: you must execute 'sudo ./install to install cargopp"
+    exit 1
+  fi
+  # chech dependencies
+  check_dependencies_cargopp "$1"
+  # create the repertorie .cargopp
+  last_position=$(pwd)
+  REAL_USER="${SUDO_USER:-$USER}"
+  REAL_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+  cd "$REAL_HOME"
+  # installing git repositories
+  echo "⚙️ installing git repositories of cargopp.."
+  install_curl_bring
+  install_mover
+  sudo ln -sfn "$REAL_HOME/.cargopp/bin/cargopp" /usr/local/bin/cargopp
+  cd $last_position
+  rm -- "$(basename "$0")" >/dev/null 2>&1
+  echo "cargopp installed with success!"
+  exit 0
+}
+
+# cargopp install
+OS=$(find_os_familly)
+case "$OS" in
+*debian*)
+  manage_installation_deb_redhat "$OS"
+  ;;
+*redhat*)
+  manage_installation_deb_redhat "$OS"
+  ;;
+*)
+  echo -e "${RED}❌ Unsupported OS template. Please install cmake and g++ manually.${NC}"
+  exit 1
+  ;;
+esac
